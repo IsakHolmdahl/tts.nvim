@@ -42,6 +42,8 @@ function M.speak(text, opts)
 	opts = opts or {}
 	local config = require("tts.config").get().elevenlabs
 
+	vim.notify("TTS: Sending request to Eleven Labs API with text:" .. text .. "...", vim.log.levels.INFO)
+	vim.notify(config, vim.log.levels.INFO)
 	-- Validate input text
 	if not text or text == "" or text:match("^%s*$") then
 		vim.schedule(function()
