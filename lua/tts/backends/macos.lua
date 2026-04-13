@@ -47,10 +47,13 @@ function M._execute_async(cmd)
   if current_job then
     M.stop()
   end
-  
+
+  local state = require("tts.state")
+  state.transition("playing")
+
   local stdout = vim.loop.new_pipe(false)
   local stderr = vim.loop.new_pipe(false)
-  
+
   current_job = vim.loop.spawn('sh', {
     args = { '-c', cmd },
     stdio = { nil, stdout, stderr }
@@ -65,20 +68,26 @@ function M._execute_async(cmd)
       current_job:close()
       current_job = nil
     end
-    
+
     vim.schedule(function()
       local state = require('tts.state')
-      if state then
+      if code ~= 0 then
+        state.transition('error')
+      else
         state.transition('idle')
       end
-      
+
       vim.api.nvim_exec_autocmds('User', {
         pattern = 'TTSPlayEnd',
         data = { backend = 'macos' }
       })
     end)
   end)
-  
+
+  if not current_job then
+    state.transition("error")
+  end
+
   return {
     stop = function()
       M.stop()

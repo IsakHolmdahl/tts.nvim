@@ -190,11 +190,16 @@ function M._play_audio(file)
 
 	if not file or vim.fn.filereadable(file) ~= 1 then
 		debug_log('_play_audio: file not readable or nil, returning')
+		local state = require("tts.state")
+		state.transition("error")
 		return
 	end
 
 	local file_size = vim.fn.getfsize(file)
 	debug_log('_play_audio: file size = ' .. file_size)
+
+	local state = require("tts.state")
+	state.transition("playing")
 
 	local player = require("tts.player")
 	debug_log('_play_audio: calling player.play()')
@@ -218,6 +223,7 @@ function M._play_audio(file)
 		debug_log('_play_audio: player.play() returned handle (success)')
 	else
 		debug_log('_play_audio: player.play() returned NIL - playback failed to start!')
+		state.transition("error")
 		vim.schedule(function()
 			vim.notify("TTS: Playback failed to start - check debug logs", vim.log.levels.ERROR)
 		end)

@@ -60,9 +60,6 @@ function M.speak(text, opts)
 		return nil
 	end
 
-	local state = require("tts.state")
-	state.transition("playing", { text = text })
-
 	vim.api.nvim_exec_autocmds("User", {
 		pattern = "TTSPlayStart",
 		data = { text = text, backend = current_backend.name },

@@ -173,24 +173,30 @@ end
 
 function M._play_audio(file)
   if not file or vim.fn.filereadable(file) ~= 1 then
+    local state = require("tts.state")
+    state.transition("error")
     return
   end
-  
+
+  local state = require("tts.state")
+  state.transition("playing")
+
   local player = require('tts.player')
   local handle = player.play(file, {
     on_complete = function()
       vim.defer_fn(function()
         vim.fn.delete(file)
       end, 100)
-      
+
       vim.api.nvim_exec_autocmds('User', {
         pattern = 'TTSPlayEnd',
         data = { backend = 'openai' }
       })
     end
   })
-  
+
   if not handle then
+    state.transition("error")
     vim.fn.delete(file)
   end
 end
