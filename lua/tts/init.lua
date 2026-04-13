@@ -83,6 +83,34 @@ function M._setup_commands()
 	vim.api.nvim_create_user_command("TTSMotion", function(cmd)
 		M.play_motion(cmd.args)
 	end, { nargs = 1 })
+
+	vim.api.nvim_create_user_command("TTSDebug", function()
+		M.debug_info()
+	end, {})
+end
+
+function M.debug_info()
+	local lines = { "=== TTS Debug Info ===" }
+
+	local state = require("tts.state")
+	table.insert(lines, "Current state: " .. state.get_state())
+	table.insert(lines, "Can play: " .. tostring(state.can_play()))
+
+	local player = require("tts.player")
+	local current_player = player.get_current_player()
+	table.insert(lines, "Current player: " .. tostring(current_player))
+
+	local players = { 'afplay', 'mpv', 'ffplay', 'play' }
+	table.insert(lines, "Available players:")
+	for _, p in ipairs(players) do
+		local executable = vim.fn.executable(p) == 1
+		table.insert(lines, "  " .. p .. ": " .. (executable and "FOUND" or "NOT FOUND"))
+	end
+
+	table.insert(lines, "")
+	table.insert(lines, "=== End Debug Info ===")
+
+	vim.notify(table.concat(lines, "\n"), vim.log.levels.INFO)
 end
 
 function M._setup_keymaps()

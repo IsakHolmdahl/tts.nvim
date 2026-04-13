@@ -22,20 +22,32 @@ local transitions = {
   [State.ERROR] = { State.IDLE }
 }
 
+local DEBUG = true
+
+local function debug_log(msg)
+  if DEBUG then
+    vim.notify('[TTS DEBUG] ' .. msg, vim.log.levels.DEBUG)
+  end
+end
+
 function M.transition(new_state, data)
   if not transitions[state.current] then
     transitions[state.current] = {}
   end
   
   local allowed = transitions[state.current]
+  local old_state = state.current
   
   if not vim.tbl_contains(allowed, new_state) then
+    debug_log('state.transition: BLOCKED - cannot go from "' .. old_state .. '" to "' .. new_state .. '" (allowed: ' .. vim.inspect(allowed) .. ')')
     return false
   end
   
   state.previous = state.current
   state.current = new_state
   state.data = data or {}
+  
+  debug_log('state.transition: ' .. old_state .. ' -> ' .. new_state)
   
   M._on_state_change(state.current, state.previous)
   

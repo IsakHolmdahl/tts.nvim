@@ -1,4 +1,11 @@
 local M = {}
+local DEBUG = true
+
+local function debug_log(msg)
+	if DEBUG then
+		vim.notify('[TTS DEBUG] ' .. msg, vim.log.levels.DEBUG)
+	end
+end
 
 function M.is_available()
 	local config = require("tts.config").get()
@@ -179,15 +186,25 @@ function M.speak(text, opts)
 end
 
 function M._play_audio(file)
+	debug_log('_play_audio called with file: ' .. tostring(file))
+
 	if not file or vim.fn.filereadable(file) ~= 1 then
+		debug_log('_play_audio: file not readable or nil, returning')
 		return
 	end
 
+	local file_size = vim.fn.getfsize(file)
+	debug_log('_play_audio: file size = ' .. file_size)
+
 	local player = require("tts.player")
+	debug_log('_play_audio: calling player.play()')
+
 	local handle = player.play(file, {
 		on_complete = function()
+			debug_log('_play_audio: on_complete callback fired')
 			vim.defer_fn(function()
 				vim.fn.delete(file)
+				debug_log('_play_audio: deleted temp file')
 			end, 100)
 
 			vim.api.nvim_exec_autocmds("User", {
@@ -197,7 +214,13 @@ function M._play_audio(file)
 		end,
 	})
 
-	if not handle then
+	if handle then
+		debug_log('_play_audio: player.play() returned handle (success)')
+	else
+		debug_log('_play_audio: player.play() returned NIL - playback failed to start!')
+		vim.schedule(function()
+			vim.notify("TTS: Playback failed to start - check debug logs", vim.log.levels.ERROR)
+		end)
 		vim.fn.delete(file)
 	end
 end
