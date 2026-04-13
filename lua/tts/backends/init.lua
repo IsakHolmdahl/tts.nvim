@@ -2,21 +2,21 @@ local M = {}
 local current_backend = nil
 
 function M.init()
-	local config = require('tts.config').get()
+	local config = require("tts.config").get()
 
-	if config.backend == 'auto' then
+	if config.backend == "auto" then
 		current_backend = M._auto_detect()
 	else
 		current_backend = M._load_backend(config.backend)
 	end
 
 	if not current_backend then
-		vim.notify('No TTS backend available', vim.log.levels.ERROR)
+		vim.notify("No TTS backend available", vim.log.levels.ERROR)
 	end
 end
 
 function M._auto_detect()
-	local backends = { 'macos', 'openai' }
+	local backends = { "macos", "openai", "elevenlabs" }
 
 	for _, name in ipairs(backends) do
 		local backend = M._load_backend(name)
@@ -30,7 +30,7 @@ function M._auto_detect()
 end
 
 function M._load_backend(name)
-	local ok, backend = pcall(require, 'tts.backends.' .. name)
+	local ok, backend = pcall(require, "tts.backends." .. name)
 	if ok then
 		backend.name = name
 		return backend
@@ -49,23 +49,23 @@ function M.set(name)
 		-- Silent switch
 		return true
 	else
-		vim.notify('TTS: Backend ' .. name .. ' is not available', vim.log.levels.ERROR)
+		vim.notify("TTS: Backend " .. name .. " is not available", vim.log.levels.ERROR)
 		return false
 	end
 end
 
 function M.speak(text, opts)
 	if not current_backend then
-		vim.notify('No TTS backend available', vim.log.levels.ERROR)
+		vim.notify("No TTS backend available", vim.log.levels.ERROR)
 		return nil
 	end
 
-	local state = require('tts.state')
-	state.transition('playing', { text = text })
+	local state = require("tts.state")
+	state.transition("playing", { text = text })
 
-	vim.api.nvim_exec_autocmds('User', {
-		pattern = 'TTSPlayStart',
-		data = { text = text, backend = current_backend.name }
+	vim.api.nvim_exec_autocmds("User", {
+		pattern = "TTSPlayStart",
+		data = { text = text, backend = current_backend.name },
 	})
 
 	return current_backend.speak(text, opts)
@@ -75,12 +75,10 @@ function M.stop()
 	if current_backend and current_backend.stop then
 		current_backend.stop()
 
-		local state = require('tts.state')
-		state.transition('stopped')
+		local state = require("tts.state")
+		state.transition("stopped")
 	end
 end
-
-
 
 function M.list_voices()
 	if current_backend and current_backend.list_voices then
@@ -90,8 +88,7 @@ function M.list_voices()
 end
 
 function M.get_backend_name()
-	return current_backend and current_backend.name or 'none'
+	return current_backend and current_backend.name or "none"
 end
 
 return M
-
