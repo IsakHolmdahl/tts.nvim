@@ -57,8 +57,8 @@ function M.speak(text, opts)
 	local temp_file = vim.fn.tempname() .. "." .. (config.format or "mp3")
 
 	-- Build the API request
-	local api_url = (config.elevenlabs.api_url or "https://api.elevenlabs.io/v1/text-to-speech/")
-		+ config.elevenlabs.voice_id
+	local api_url = (config.api_url or "https://api.elevenlabs.io/v1/text-to-speech/")
+		+ config.voice_id
 		+ "?output_format="
 		+ (config.format or "mp3_44100_128")
 
@@ -211,4 +211,3 @@ function M.list_voices()
 end
 
 return M
-
