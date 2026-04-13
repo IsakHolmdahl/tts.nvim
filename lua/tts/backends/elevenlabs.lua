@@ -43,7 +43,7 @@ function M.speak(text, opts)
 	local config = require("tts.config").get().elevenlabs
 
 	vim.notify("TTS: Sending request to Eleven Labs API with text:" .. text .. "...", vim.log.levels.INFO)
-	vim.notify(config, vim.log.levels.INFO)
+
 	-- Validate input text
 	if not text or text == "" or text:match("^%s*$") then
 		vim.schedule(function()
@@ -126,6 +126,7 @@ function M.speak(text, opts)
 			end
 		end,
 		on_exit = function(_, exit_code)
+			vim.notify("TTS: Eleven Labs API request completed with exit code " .. exit_code, vim.log.levels.INFO)
 			if exit_code ~= 0 then
 				local error_msg = table.concat(stderr_data, "\n")
 				local stdout_msg = table.concat(stdout_data, "\n")
