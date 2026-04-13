@@ -5,7 +5,7 @@ function M.is_available()
 
 	-- API key is optional for custom endpoints
 	local api_url = (config.elevenlabs.api_url or "https://api.elevenlabs.io/v1/text-to-speech/")
-		+ config.elevenlabs.voide_id
+		.. config.elevenlabs.voide_id
 	if api_url:match("api%.elevenlabs%.io") then
 		if not config.elevenlabs.api_key or config.elevenlabs.api_key == "" then
 			-- Only log error for elevenlabs's official API
@@ -58,9 +58,9 @@ function M.speak(text, opts)
 
 	-- Build the API request
 	local api_url = (config.api_url or "https://api.elevenlabs.io/v1/text-to-speech/")
-		+ config.voice_id
-		+ "?output_format="
-		+ (config.format or "mp3_44100_128")
+		.. config.voice_id
+		.. "?output_format="
+		.. (config.format or "mp3_44100_128")
 
 	-- Build headers
 	local headers = {
