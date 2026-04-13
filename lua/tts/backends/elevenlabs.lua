@@ -54,13 +54,13 @@ function M.speak(text, opts)
 	M.stop()
 
 	-- Create temp file for audio
-	local temp_file = vim.fn.tempname() .. "." .. (config.format or "mp3")
+	local temp_file = vim.fn.tempname() .. "." .. "mp3"
 
 	-- Build the API request
 	local api_url = (config.api_url or "https://api.elevenlabs.io/v1/text-to-speech/")
 		.. config.voice_id
 		.. "?output_format="
-		.. (config.format or "mp3_44100_128")
+		.. "mp3_44100_128"
 
 	-- Build headers
 	local headers = {
